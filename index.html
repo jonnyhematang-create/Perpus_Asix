@@ -1,91 +1,522 @@
 <!doctype html>
 <html lang="id" class="h-full">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perpustakaan Digital Dewey</title>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perpustakaan Digital Dewey</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Source+Sans+3:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    .font-display {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+    
+    .font-body {
+      font-family: 'Source Sans 3', system-ui, sans-serif;
+    }
+    
+    .folder-card {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .folder-card:hover {
+      transform: translateY(-8px) scale(1.02);
+    }
+    
+    .folder-tab {
+      clip-path: polygon(0 30%, 15% 0, 45% 0, 60% 30%, 100% 30%, 100% 100%, 0 100%);
+    }
+    
+    .book-spine {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    
+    .stagger-1 { animation-delay: 0s; }
+    .stagger-2 { animation-delay: 0.3s; }
+    .stagger-3 { animation-delay: 0.6s; }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-overlay {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full font-body gradient-bg text-white overflow-auto">
+  <div id="app" class="min-h-full w-full"><!-- Header -->
+   <header class="glass-effect sticky top-0 z-40 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+     <div class="flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+       <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+       </svg>
+      </div>
+      <div>
+       <h1 id="library-title" class="font-display text-2xl font-bold text-amber-100">Perpustakaan Digital</h1>
+       <p class="text-sm text-slate-400">Klasifikasi Desimal Dewey</p>
+      </div>
+     </div>
+     <div class="flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-2 px-4 py-2 rounded-full glass-effect">
+       <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+       </svg><input type="text" id="search-input" placeholder="Cari koleksi..." class="bg-transparent border-none outline-none text-sm text-white placeholder-slate-500 w-40">
+      </div>
+     </div>
+    </div>
+   </header><!-- Hero Section -->
+   <section class="px-6 py-12 text-center">
+    <div class="max-w-3xl mx-auto">
+     <div class="flex justify-center gap-2 mb-6">
+      <div class="book-spine stagger-1 w-3 h-16 rounded-sm bg-gradient-to-b from-red-400 to-red-600"></div>
+      <div class="book-spine stagger-2 w-4 h-20 rounded-sm bg-gradient-to-b from-blue-400 to-blue-600"></div>
+      <div class="book-spine stagger-3 w-3 h-14 rounded-sm bg-gradient-to-b from-green-400 to-green-600"></div>
+      <div class="book-spine stagger-1 w-5 h-18 rounded-sm bg-gradient-to-b from-purple-400 to-purple-600"></div>
+      <div class="book-spine stagger-2 w-3 h-16 rounded-sm bg-gradient-to-b from-amber-400 to-amber-600"></div>
+     </div>
+     <h2 id="welcome-text" class="font-display text-3xl md:text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-300">Selamat Datang di Perpustakaan Digital</h2>
+     <p class="text-slate-400 text-lg mb-8">Jelajahi 10 kategori utama berdasarkan Sistem Klasifikasi Desimal Dewey</p>
+    </div>
+   </section><!-- Collections Grid -->
+   <section class="px-6 pb-16">
+    <div class="max-w-7xl mx-auto">
+     <div id="collections-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"><!-- Folders will be generated by JavaScript -->
+     </div>
+    </div>
+   </section><!-- Footer -->
+   <footer class="glass-effect px-6 py-8 mt-auto">
+    <div class="max-w-7xl mx-auto text-center">
+     <p class="text-slate-400 text-sm">📚 Sistem Klasifikasi Desimal Dewey dikembangkan oleh Melvil Dewey pada tahun 1876</p>
+     <p class="text-slate-500 text-xs mt-2">Perpustakaan Digital © 2024</p>
+    </div>
+   </footer><!-- Modal -->
+   <div id="modal" class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
+    <div class="glass-effect rounded-2xl max-w-2xl w-full max-h-[80%] overflow-hidden shadow-2xl">
+     <div id="modal-header" class="p-6 border-b border-white/10">
+      <div class="flex items-center justify-between">
+       <div class="flex items-center gap-4">
+        <div id="modal-icon" class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl"></div>
+        <div>
+         <h3 id="modal-title" class="font-display text-2xl font-bold"></h3>
+         <p id="modal-code" class="text-slate-400"></p>
+        </div>
+       </div><button id="close-modal" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg></button>
+      </div>
+     </div>
+     <div id="modal-content" class="p-6 overflow-y-auto max-h-96 scrollbar-thin">
+      <p id="modal-description" class="text-slate-300 mb-6"></p>
+      <h4 class="font-semibold text-amber-300 mb-3">📁 Sub-kategori:</h4>
+      <ul id="modal-subcategories" class="space-y-2"></ul>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      library_title: "Perpustakaan Digital",
+      welcome_text: "Selamat Datang di Perpustakaan Digital",
+      primary_color: "#f59e0b",
+      secondary_color: "#1e293b",
+      text_color: "#fef3c7",
+      accent_color: "#fb923c",
+      background_color: "#0f172a"
+    };
 
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <style>
-      body { box-sizing: border-box; }
-
-      .font-display { font-family: 'Playfair Display', Georgia, serif; }
-      .font-body { font-family: 'Source Sans 3', system-ui, sans-serif; }
-
-      .folder-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-      .folder-card:hover { transform: translateY(-8px) scale(1.02); }
-
-      .folder-tab {
-        clip-path: polygon(0 30%, 15% 0, 45% 0, 60% 30%, 100% 30%, 100% 100%, 0 100%);
+    const deweyCategories = [
+      {
+        code: "000",
+        name: "Ilmu Komputer & Informasi Umum",
+        icon: "💻",
+        color: "from-slate-500 to-slate-700",
+        description: "Mencakup ilmu komputer, informasi, karya umum, ensiklopedia, dan organisasi.",
+        subcategories: [
+          "000 - Ilmu Komputer, Pengetahuan & Sistem",
+          "010 - Bibliografi",
+          "020 - Ilmu Perpustakaan & Informasi",
+          "030 - Ensiklopedia Umum",
+          "040 - [Tidak digunakan]",
+          "050 - Majalah, Jurnal & Serial",
+          "060 - Asosiasi, Organisasi & Museum",
+          "070 - Media Berita, Jurnalisme & Penerbitan",
+          "080 - Kutipan Umum",
+          "090 - Manuskrip & Buku Langka"
+        ]
+      },
+      {
+        code: "100",
+        name: "Filsafat & Psikologi",
+        icon: "🧠",
+        color: "from-purple-500 to-purple-700",
+        description: "Meliputi filsafat, metafisika, epistemologi, paranormal, dan psikologi.",
+        subcategories: [
+          "100 - Filsafat",
+          "110 - Metafisika",
+          "120 - Epistemologi",
+          "130 - Paranormal",
+          "140 - Aliran Filsafat",
+          "150 - Psikologi",
+          "160 - Logika",
+          "170 - Etika",
+          "180 - Filsafat Kuno & Abad Pertengahan",
+          "190 - Filsafat Modern Barat"
+        ]
+      },
+      {
+        code: "200",
+        name: "Agama",
+        icon: "🙏",
+        color: "from-amber-500 to-amber-700",
+        description: "Semua tentang agama, mitologi, dan teologi dari berbagai kepercayaan dunia.",
+        subcategories: [
+          "200 - Agama Umum",
+          "210 - Filsafat & Teori Agama",
+          "220 - Alkitab",
+          "230 - Teologi Kristen",
+          "240 - Moral & Devosi Kristen",
+          "250 - Gereja Lokal & Ordo Keagamaan",
+          "260 - Teologi Sosial & Gerejawi",
+          "270 - Sejarah Kekristenan",
+          "280 - Denominasi Kristen",
+          "290 - Agama Lain (Islam, Hindu, Buddha, dll)"
+        ]
+      },
+      {
+        code: "300",
+        name: "Ilmu Sosial",
+        icon: "👥",
+        color: "from-blue-500 to-blue-700",
+        description: "Sosiologi, statistik, politik, ekonomi, hukum, pendidikan, dan adat istiadat.",
+        subcategories: [
+          "300 - Ilmu Sosial Umum",
+          "310 - Statistik",
+          "320 - Ilmu Politik",
+          "330 - Ekonomi",
+          "340 - Hukum",
+          "350 - Administrasi Publik",
+          "360 - Masalah & Layanan Sosial",
+          "370 - Pendidikan",
+          "380 - Perdagangan & Komunikasi",
+          "390 - Adat Istiadat & Folklor"
+        ]
+      },
+      {
+        code: "400",
+        name: "Bahasa",
+        icon: "🗣️",
+        color: "from-teal-500 to-teal-700",
+        description: "Linguistik dan bahasa-bahasa dunia termasuk tata bahasa dan kamus.",
+        subcategories: [
+          "400 - Bahasa Umum",
+          "410 - Linguistik",
+          "420 - Bahasa Inggris",
+          "430 - Bahasa Jerman",
+          "440 - Bahasa Prancis",
+          "450 - Bahasa Italia",
+          "460 - Bahasa Spanyol & Portugis",
+          "470 - Bahasa Latin",
+          "480 - Bahasa Yunani",
+          "490 - Bahasa Lain (termasuk Indonesia)"
+        ]
+      },
+      {
+        code: "500",
+        name: "Sains Murni",
+        icon: "🔬",
+        color: "from-green-500 to-green-700",
+        description: "Matematika, astronomi, fisika, kimia, biologi, dan ilmu bumi.",
+        subcategories: [
+          "500 - Ilmu Pengetahuan Alam & Matematika",
+          "510 - Matematika",
+          "520 - Astronomi",
+          "530 - Fisika",
+          "540 - Kimia",
+          "550 - Ilmu Bumi",
+          "560 - Paleontologi",
+          "570 - Biologi",
+          "580 - Botani (Tumbuhan)",
+          "590 - Zoologi (Hewan)"
+        ]
+      },
+      {
+        code: "600",
+        name: "Teknologi & Sains Terapan",
+        icon: "⚙️",
+        color: "from-orange-500 to-orange-700",
+        description: "Kedokteran, teknik, pertanian, manajemen, dan ilmu terapan lainnya.",
+        subcategories: [
+          "600 - Teknologi Umum",
+          "610 - Kedokteran & Kesehatan",
+          "620 - Teknik",
+          "630 - Pertanian",
+          "640 - Ekonomi Rumah Tangga",
+          "650 - Manajemen & Bisnis",
+          "660 - Teknik Kimia",
+          "670 - Manufaktur",
+          "680 - Kerajinan & Industri Kecil",
+          "690 - Konstruksi Bangunan"
+        ]
+      },
+      {
+        code: "700",
+        name: "Kesenian & Rekreasi",
+        icon: "🎨",
+        color: "from-pink-500 to-pink-700",
+        description: "Seni rupa, musik, pertunjukan, olahraga, dan kegiatan rekreasi.",
+        subcategories: [
+          "700 - Seni Umum",
+          "710 - Arsitektur Lanskap & Perencanaan Kota",
+          "720 - Arsitektur",
+          "730 - Seni Patung & Plastik",
+          "740 - Seni Grafis & Dekoratif",
+          "750 - Lukisan",
+          "760 - Seni Grafis & Cetak",
+          "770 - Fotografi",
+          "780 - Musik",
+          "790 - Olahraga, Permainan & Hiburan"
+        ]
+      },
+      {
+        code: "800",
+        name: "Sastra",
+        icon: "📖",
+        color: "from-red-500 to-red-700",
+        description: "Karya sastra dari berbagai bahasa termasuk puisi, drama, dan prosa.",
+        subcategories: [
+          "800 - Sastra Umum & Retorika",
+          "810 - Sastra Amerika",
+          "820 - Sastra Inggris",
+          "830 - Sastra Jerman",
+          "840 - Sastra Prancis",
+          "850 - Sastra Italia",
+          "860 - Sastra Spanyol & Portugis",
+          "870 - Sastra Latin",
+          "880 - Sastra Yunani",
+          "890 - Sastra Bahasa Lain (Indonesia, dll)"
+        ]
+      },
+      {
+        code: "900",
+        name: "Sejarah & Geografi",
+        icon: "🌍",
+        color: "from-indigo-500 to-indigo-700",
+        description: "Sejarah dunia, biografi, geografi, dan perjalanan dari semua wilayah.",
+        subcategories: [
+          "900 - Sejarah Umum",
+          "910 - Geografi & Perjalanan",
+          "920 - Biografi & Genealogi",
+          "930 - Sejarah Dunia Kuno",
+          "940 - Sejarah Eropa",
+          "950 - Sejarah Asia",
+          "960 - Sejarah Afrika",
+          "970 - Sejarah Amerika Utara",
+          "980 - Sejarah Amerika Selatan",
+          "990 - Sejarah Wilayah Lain"
+        ]
       }
+    ];
 
-      .book-spine {
-        animation: float 3s ease-in-out infinite;
-      }
+    let currentConfig = { ...defaultConfig };
 
-      @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-5px); }
-      }
-
-      .stagger-1 { animation-delay: 0s; }
-      .stagger-2 { animation-delay: 0.3s; }
-      .stagger-3 { animation-delay: 0.6s; }
-
-      .gradient-bg {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      }
-
-      .glass-effect {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .modal-overlay {
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(5px);
-      }
-
-      .scrollbar-thin::-webkit-scrollbar { width: 6px; }
-      .scrollbar-thin::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 3px; }
-      .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
-    </style>
-
-  </head>
-
-  <body class="h-full font-body gradient-bg text-white overflow-auto">
-    <div id="app" class="min-h-full w-full">
-
-      <!-- HEADER -->
-      <header class="glass-effect sticky top-0 z-40 px-6 py-4">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 
-                  5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 
-                  0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 
-                  0-3.332.477-4.5 1.253" />
+    function createFolderCard(category, index) {
+      const card = document.createElement('div');
+      card.className = 'folder-card cursor-pointer';
+      card.style.animationDelay = `${index * 0.1}s`;
+      card.innerHTML = `
+        <div class="folder-tab bg-gradient-to-r ${category.color} h-32 rounded-t-xl relative shadow-lg">
+          <div class="absolute inset-0 flex items-center justify-center pt-4">
+            <span class="text-4xl">${category.icon}</span>
+          </div>
+          <div class="absolute bottom-2 left-3 right-3">
+            <span class="text-xs font-bold bg-black/30 px-2 py-1 rounded-full">${category.code}</span>
+          </div>
+        </div>
+        <div class="bg-gradient-to-b from-slate-800 to-slate-900 rounded-b-xl p-4 border border-slate-700/50 border-t-0 shadow-xl">
+          <h3 class="font-display font-semibold text-sm text-white mb-1 line-clamp-2 leading-tight">${category.name}</h3>
+          <p class="text-xs text-slate-400 line-clamp-2">${category.description}</p>
+          <div class="mt-3 flex items-center justify-between">
+            <span class="text-xs text-slate-500">10 sub-kategori</span>
+            <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+              <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
             </div>
-
-            <div>
-              <h1 id="library-title" class="font-display text-2xl font-bold text-amber-100">Perpustakaan Digital</h1>
-              <p class="text-sm text-slate-400">Klasifikasi Desimal Dewey</p>
-            </div>
           </div>
+        </div>
+      `;
+      card.addEventListener('click', () => openModal(category));
+      return card;
+    }
 
-          <!-- SEARCH -->
-          <div class="hidden md:flex items-center gap-2 px-4 py-2 rounded-full glass-effect">
-            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin=
+    function renderCollections(filter = '') {
+      const grid = document.getElementById('collections-grid');
+      grid.innerHTML = '';
+      
+      const filtered = deweyCategories.filter(cat => 
+        cat.name.toLowerCase().includes(filter.toLowerCase()) ||
+        cat.code.includes(filter) ||
+        cat.description.toLowerCase().includes(filter.toLowerCase())
+      );
+      
+      filtered.forEach((category, index) => {
+        grid.appendChild(createFolderCard(category, index));
+      });
+      
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <span class="text-6xl mb-4 block">🔍</span>
+            <p class="text-slate-400">Tidak ditemukan koleksi untuk "${filter}"</p>
+          </div>
+        `;
+      }
+    }
+
+    function openModal(category) {
+      const modal = document.getElementById('modal');
+      const modalIcon = document.getElementById('modal-icon');
+      const modalTitle = document.getElementById('modal-title');
+      const modalCode = document.getElementById('modal-code');
+      const modalDescription = document.getElementById('modal-description');
+      const modalSubcategories = document.getElementById('modal-subcategories');
+      
+      modalIcon.className = `w-14 h-14 rounded-xl flex items-center justify-center text-2xl bg-gradient-to-br ${category.color}`;
+      modalIcon.textContent = category.icon;
+      modalTitle.textContent = category.name;
+      modalCode.textContent = `Kode DDC: ${category.code}`;
+      modalDescription.textContent = category.description;
+      
+      modalSubcategories.innerHTML = category.subcategories.map(sub => `
+        <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+          <div class="w-2 h-2 rounded-full bg-amber-400"></div>
+          <span class="text-sm text-slate-300">${sub}</span>
+        </li>
+      `).join('');
+      
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    async function onConfigChange(config) {
+      currentConfig = { ...defaultConfig, ...config };
+      
+      const titleEl = document.getElementById('library-title');
+      const welcomeEl = document.getElementById('welcome-text');
+      
+      if (titleEl) titleEl.textContent = currentConfig.library_title || defaultConfig.library_title;
+      if (welcomeEl) welcomeEl.textContent = currentConfig.welcome_text || defaultConfig.welcome_text;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.primary_color || defaultConfig.primary_color,
+            set: (value) => {
+              config.primary_color = value;
+              window.elementSdk.setConfig({ primary_color: value });
+            }
+          },
+          {
+            get: () => config.accent_color || defaultConfig.accent_color,
+            set: (value) => {
+              config.accent_color = value;
+              window.elementSdk.setConfig({ accent_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || 'Playfair Display',
+          set: (value) => {
+            config.font_family = value;
+            window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || 16,
+          set: (value) => {
+            config.font_size = value;
+            window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["library_title", config.library_title || defaultConfig.library_title],
+        ["welcome_text", config.welcome_text || defaultConfig.welcome_text]
+      ]);
+    }
+
+    // Initialize
+    document.getElementById('close-modal').addEventListener('click', closeModal);
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target.id === 'modal') closeModal();
+    });
+    
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      renderCollections(e.target.value);
+    });
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    renderCollections();
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c4c64b90179514a',t:'MTc2OTU2MDM1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
