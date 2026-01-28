@@ -1,327 +1,727 @@
 <!doctype html>
 <html lang="id" class="h-full">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perpustakaan Digital Dewey</title>
-
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <style>
-      body { box-sizing: border-box; }
-
-      .font-display { font-family: 'Playfair Display', Georgia, serif; }
-      .font-body { font-family: 'Source Sans 3', system-ui, sans-serif; }
-
-      .folder-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-      .folder-card:hover { transform: translateY(-8px) scale(1.02); }
-
-      .folder-tab {
-        clip-path: polygon(0 30%, 15% 0, 45% 0, 60% 30%, 100% 30%, 100% 100%, 0 100%);
-      }
-
-      .book-spine {
-        animation: float 3s ease-in-out infinite;
-      }
-
-      @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-5px); }
-      }
-
-      .stagger-1 { animation-delay: 0s; }
-      .stagger-2 { animation-delay: 0.3s; }
-      .stagger-3 { animation-delay: 0.6s; }
-
-      .gradient-bg {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      }
-
-      .glass-effect {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .modal-overlay {
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(5px);
-      }
-
-      .scrollbar-thin::-webkit-scrollbar { width: 6px; }
-      .scrollbar-thin::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 3px; }
-      .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
-    </style>
-
-  </head>
-
-  <body class="h-full font-body gradient-bg text-white overflow-auto">
-    <div id="app" class="min-h-full w-full">
-
-      <!-- HEADER -->
-      <header class="glass-effect sticky top-0 z-40 px-6 py-4">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
-              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 
-                  5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 
-                  0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 
-                  0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-
-            <div>
-              <h1 id="library-title" class="font-display text-2xl font-bold text-amber-100">Perpustakaan Digital</h1>
-              <p class="text-sm text-slate-400">Klasifikasi Desimal Dewey</p>
-            </div>
-          </div>
-
-          <!-- SEARCH -->
-          <div class="hidden md:flex items-center gap-2 px-4 py-2 rounded-full glass-effect">
-            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input type="text" id="search-input" placeholder="Cari koleksi..."
-              class="bg-transparent border-none outline-none text-sm text-white placeholder-slate-500 w-40">
-          </div>
-
-        </div>
-      </header>
-
-      <!-- HERO -->
-      <section class="px-6 py-12 text-center">
-        <div class="max-w-3xl mx-auto">
-
-          <div class="flex justify-center gap-2 mb-6">
-            <div class="book-spine stagger-1 w-3 h-16 rounded-sm bg-gradient-to-b from-red-400 to-red-600"></div>
-            <div class="book-spine stagger-2 w-4 h-20 rounded-sm bg-gradient-to-b from-blue-400 to-blue-600"></div>
-            <div class="book-spine stagger-3 w-3 h-14 rounded-sm bg-gradient-to-b from-green-400 to-green-600"></div>
-            <div class="book-spine stagger-1 w-5 h-18 rounded-sm bg-gradient-to-b from-purple-400 to-purple-600"></div>
-            <div class="book-spine stagger-2 w-3 h-16 rounded-sm bg-gradient-to-b from-amber-400 to-amber-600"></div>
-          </div>
-
-          <h2 id="welcome-text"
-            class="font-display text-3xl md:text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-orange-300">
-            Selamat Datang di Perpustakaan Digital
-          </h2>
-
-          <p class="text-slate-400 text-lg mb-8">Jelajahi 10 kategori utama berdasarkan Sistem Klasifikasi Desimal Dewey</p>
-
-        </div>
-      </section>
-
-      <!-- GRID KOLEKSI -->
-      <section class="px-6 pb-16">
-        <div class="max-w-7xl mx-auto">
-          <div id="collections-grid"
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-          </div>
-        </div>
-      </section>
-
-      <!-- FOOTER -->
-      <footer class="glass-effect px-6 py-8 mt-auto">
-        <div class="max-w-7xl mx-auto text-center">
-          <p class="text-slate-400 text-sm">📚 Sistem Klasifikasi Desimal Dewey dikembangkan oleh Melvil Dewey pada tahun 1876</p>
-          <p class="text-slate-500 text-xs mt-2">Perpustakaan Digital © 2024</p>
-        </div>
-      </footer>
-
-      <!-- MODAL -->
-      <div id="modal"
-        class="fixed inset-0 z-50 hidden modal-overlay flex items-center justify-center p-4">
-        <div class="glass-effect rounded-2xl max-w-2xl w-full max-h-[80%] overflow-hidden shadow-2xl">
-
-          <div id="modal-header" class="p-6 border-b border-white/10">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-4">
-                <div id="modal-icon" class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl"></div>
-                <div>
-                  <h3 id="modal-title" class="font-display text-2xl font-bold"></h3>
-                  <p id="modal-code" class="text-slate-400"></p>
-                </div>
-              </div>
-
-              <button id="close-modal"
-                class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div id="modal-content"
-            class="p-6 overflow-y-auto max-h-96 scrollbar-thin">
-            <p id="modal-description" class="text-slate-300 mb-6"></p>
-            <h4 class="font-semibold text-amber-300 mb-3">📁 Sub-kategori:</h4>
-            <ul id="modal-subcategories" class="space-y-2"></ul>
-          </div>
-
-        </div>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perpustakaan Muara Literasi - SMAK 6 PENABUR Jakarta</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Source+Sans+3:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    .font-display { font-family: 'Playfair Display', serif; }
+    .font-body { font-family: 'Source Sans 3', sans-serif; }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .animate-fade-in-up {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+    
+    .book-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .hero-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: #c4b5a0;
+      border-radius: 3px;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full font-body">
+  <div id="app" class="h-full w-full overflow-auto scrollbar-thin" style="background: linear-gradient(135deg, #faf7f2 0%, #f5ede3 100%);"><!-- Header -->
+   <header id="header" class="relative overflow-hidden hero-pattern" style="background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 50%, #6b3d22 100%);">
+    <div class="absolute inset-0 bg-black/10"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4"><!-- Logo SVG -->
+       <div class="animate-float">
+        <svg width="70" height="70" viewbox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="35" cy="35" r="33" fill="#d4a574" stroke="#f5ede3" stroke-width="2" /> <path d="M20 48V22c0-2 1-3 3-3h8c2 0 4 1 4 3v26" stroke="#2c1810" stroke-width="2.5" fill="#f5ede3" /> <path d="M35 48V22c0-2 2-3 4-3h8c2 0 3 1 3 3v26" stroke="#2c1810" stroke-width="2.5" fill="#f5ede3" /> <path d="M20 26h15M20 32h15M20 38h15M35 26h15M35 32h15M35 38h15" stroke="#d4a574" stroke-width="1.5" /> <path d="M35 19v32" stroke="#2c1810" stroke-width="2" /> <circle cx="35" cy="55" r="4" fill="#2c1810" />
+        </svg>
+       </div>
+       <div class="text-center sm:text-left">
+        <h1 id="library-title" class="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-amber-50 tracking-wide">Perpustakaan Muara Literasi</h1>
+        <p id="school-title" class="text-amber-200/80 text-sm sm:text-base mt-1">SMAK 6 PENABUR Jakarta</p>
+       </div>
       </div>
+      <div class="flex gap-3"><button id="btn-add-book" onclick="openAddModal()" class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 hover:scale-105" style="background: #d4a574; color: #2c1810;"> ➕ Tambah Buku </button> <a id="drive-link-btn" href="https://drive.google.com/drive/u/1/folders/1ocEv063sobBZJbCr6sgFcHSfVC_P_kA8" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 hover:scale-105 flex items-center gap-2" style="background: #f5ede3; color: #2c1810;"> 📁 Koleksi Digital </a>
+      </div>
+     </div>
     </div>
+   </header><!-- Welcome Section -->
+   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="rounded-2xl p-6 sm:p-8 animate-fade-in-up" style="background: linear-gradient(135deg, #ffffff 0%, #faf7f2 100%); box-shadow: 0 4px 20px rgba(44, 24, 16, 0.08);">
+     <div class="flex flex-col md:flex-row items-center gap-6">
+      <div class="flex-1">
+       <h2 class="font-display text-2xl sm:text-3xl font-semibold mb-3" style="color: #2c1810;">Selamat Datang! 📚</h2>
+       <p id="welcome-text" class="text-lg leading-relaxed" style="color: #5c4033;">Jelajahi dunia pengetahuan melalui koleksi buku perpustakaan kami. Mari bersama membangun budaya literasi untuk masa depan yang lebih cerah.</p>
+      </div>
+      <div class="flex gap-4 text-center">
+       <div class="p-4 rounded-xl" style="background: #d4a574;">
+        <div id="total-books" class="font-display text-3xl font-bold" style="color: #2c1810;">
+         0
+        </div>
+        <div class="text-sm font-medium" style="color: #2c1810;">
+         Total Buku
+        </div>
+       </div>
+       <div class="p-4 rounded-xl" style="background: #8fbc8f;">
+        <div id="available-books" class="font-display text-3xl font-bold" style="color: #2c1810;">
+         0
+        </div>
+        <div class="text-sm font-medium" style="color: #2c1810;">
+         Tersedia
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Search & Filter -->
+   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+    <div class="flex flex-col sm:flex-row gap-4 animate-fade-in-up stagger-1">
+     <div class="flex-1 relative"><input type="text" id="search-input" placeholder="🔍 Cari judul, penulis, atau ISBN..." class="w-full px-4 py-3 rounded-xl border-2 focus:outline-none transition-all duration-300 text-base" style="border-color: #d4a574; background: white; color: #2c1810;" onfocus="this.style.borderColor='#2c1810'; this.style.boxShadow='0 0 0 3px rgba(212,165,116,0.3)'" onblur="this.style.borderColor='#d4a574'; this.style.boxShadow='none'" oninput="filterBooks()">
+     </div><select id="category-filter" onchange="filterBooks()" class="px-4 py-3 rounded-xl border-2 focus:outline-none cursor-pointer text-base" style="border-color: #d4a574; background: white; color: #2c1810;"> <option value="">📂 Semua Kategori</option> <option value="Fiksi">📖 Fiksi</option> <option value="Non-Fiksi">📘 Non-Fiksi</option> <option value="Sains">🔬 Sains</option> <option value="Sejarah">🏛️ Sejarah</option> <option value="Agama">🙏 Agama</option> <option value="Bahasa">💬 Bahasa</option> <option value="Matematika">📐 Matematika</option> <option value="Lainnya">📚 Lainnya</option> </select> <select id="availability-filter" onchange="filterBooks()" class="px-4 py-3 rounded-xl border-2 focus:outline-none cursor-pointer text-base" style="border-color: #d4a574; background: white; color: #2c1810;"> <option value="">📋 Semua Status</option> <option value="available">✅ Tersedia</option> <option value="borrowed">⏳ Dipinjam</option> </select>
+    </div>
+   </section><!-- Books Grid -->
+   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+    <div id="books-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"><!-- Books will be rendered here -->
+    </div><!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-16 animate-fade-in-up">
+     <div class="text-6xl mb-4">
+      📚
+     </div>
+     <h3 class="font-display text-2xl font-semibold mb-2" style="color: #2c1810;">Belum Ada Buku</h3>
+     <p class="mb-6" style="color: #5c4033;">Mulai tambahkan koleksi buku perpustakaan Anda!</p><button onclick="openAddModal()" class="px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105" style="background: #d4a574; color: #2c1810;"> ➕ Tambah Buku Pertama </button>
+    </div><!-- No Results State -->
+    <div id="no-results" class="hidden text-center py-16 animate-fade-in-up">
+     <div class="text-6xl mb-4">
+      🔍
+     </div>
+     <h3 class="font-display text-2xl font-semibold mb-2" style="color: #2c1810;">Tidak Ditemukan</h3>
+     <p style="color: #5c4033;">Coba kata kunci atau filter yang berbeda</p>
+    </div>
+   </section><!-- Footer -->
+   <footer class="py-6 text-center" style="background: #2c1810; color: #d4a574;">
+    <p class="text-sm">© 2024 Perpustakaan Muara Literasi - SMAK 6 PENABUR Jakarta</p>
+    <p class="text-xs mt-1 opacity-70">Membangun Generasi Literat 📖</p>
+   </footer><!-- Add/Edit Modal -->
+   <div id="book-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.6);">
+    <div class="w-full max-w-lg rounded-2xl max-h-[90%] overflow-auto scrollbar-thin" style="background: #faf7f2;">
+     <div class="p-6">
+      <div class="flex items-center justify-between mb-6">
+       <h3 id="modal-title" class="font-display text-2xl font-semibold" style="color: #2c1810;">Tambah Buku Baru</h3><button onclick="closeModal()" class="w-10 h-10 rounded-full flex items-center justify-center transition-colors" style="background: #f5ede3; color: #2c1810;" onmouseover="this.style.background='#d4a574'" onmouseout="this.style.background='#f5ede3'">✕</button>
+      </div>
+      <form id="book-form" onsubmit="handleFormSubmit(event)"><input type="hidden" id="edit-book-id">
+       <div class="space-y-4">
+        <div><label class="block text-sm font-medium mb-1" style="color: #2c1810;" for="book-title">Judul Buku *</label> <input type="text" id="book-title" required class="w-full px-4 py-2.5 rounded-lg border-2 focus:outline-none transition-all" style="border-color: #d4a574; background: white; color: #2c1810;" onfocus="this.style.borderColor='#2c1810'" onblur="this.style.borderColor='#d4a574'">
+        </div>
+        <div><label class="block text-sm font-medium mb-1" style="color: #2c1810;" for="book-author">Penulis *</label> <input type="text" id="book-author" required class="w-full px-4 py-2.5 rounded-lg border-2 focus:outline-none transition-all" style="border-color: #d4a574; background: white; color: #2c1810;" onfocus="this.style.borderColor='#2c1810'" onblur="this.style.borderColor='#d4a574'">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+         <div><label class="block text-sm font-medium mb-1" style="color: #2c1810;" for="book-category">Kategori *</label> <select id="book-category" required class="w-full px-4 py-2.5 rounded-lg border-2 focus:outline-none transition-all cursor-pointer" style="border-color: #d4a574; background: white; color: #2c1810;" onfocus="this.style.borderColor='#2c1810'" onblur="this.style.borderColor='#d4a574'"> <option value="">Pilih kategori</option> <option value="Fiksi">Fiksi</option> <option value="Non-Fiksi">Non-Fiksi</option> <option value="Sains">Sains</option> <option value="Sejarah">Sejarah</option> <option value="Agama">Agama</option> <option value="Bahasa">Bahasa</option> <option value="Matematika">Matematika</option> <option value="Lainnya">Lainnya</option> </select>
+         </div>
+         <div><label class="block text-sm font-medium mb-1" style="color: #2c1810;" for="book-year">Tahun Terbit</label> <input type="text" id="book-year" placeholder="2024" class="w-full px-4 py-2.5 rounded-lg border-2 focus:outline-none transition-all" style="border-color: #d4a574; background: white; color: #2c1810;" onfocus="this.style.borderColor='#2c1810'" onblur="this.style.borderColor='#d4a574'">
+         </div>
+        </div>
+        <div><label class="block text-sm font-medium mb-1" style="color: #2c1810;" for="book-isbn">ISBN</label> <input type="text" id="book-isbn" placeholder="978-xxx-xxx-xxx-x" class="w-full px-4 py-2.5 rounded-lg border-2 focus:outline-none transition-all" style="border-color: #d4a574; background: white; color: #2c1810;" onfocus="this.style.borderColor='#2c1810'" onblur="this.style.borderColor='#d4a574'">
+        </div>
+        <div><label class="block text-sm font-medium mb-1" style="color: #2c1810;" for="book-description">Deskripsi</label> <textarea id="book-description" rows="3" placeholder="Sinopsis atau deskripsi buku..." class="w-full px-4 py-2.5 rounded-lg border-2 focus:outline-none transition-all resize-none" style="border-color: #d4a574; background: white; color: #2c1810;" onfocus="this.style.borderColor='#2c1810'" onblur="this.style.borderColor='#d4a574'"></textarea>
+        </div>
+        <div><label class="block text-sm font-medium mb-1" style="color: #2c1810;" for="book-cover">URL Gambar Cover</label> <input type="url" id="book-cover" placeholder="https://..." class="w-full px-4 py-2.5 rounded-lg border-2 focus:outline-none transition-all" style="border-color: #d4a574; background: white; color: #2c1810;" onfocus="this.style.borderColor='#2c1810'" onblur="this.style.borderColor='#d4a574'">
+        </div>
+        <div class="flex items-center gap-3"><input type="checkbox" id="book-available" checked class="w-5 h-5 rounded cursor-pointer accent-amber-700"> <label class="text-sm font-medium cursor-pointer" style="color: #2c1810;" for="book-available">Buku tersedia untuk dipinjam</label>
+        </div>
+       </div>
+       <div class="flex gap-3 mt-6"><button type="button" onclick="closeModal()" class="flex-1 px-4 py-3 rounded-xl font-medium transition-all" style="background: #f5ede3; color: #2c1810;"> Batal </button> <button type="submit" id="submit-btn" class="flex-1 px-4 py-3 rounded-xl font-medium transition-all hover:scale-[1.02]" style="background: #d4a574; color: #2c1810;"> 💾 Simpan </button>
+       </div>
+      </form>
+     </div>
+    </div>
+   </div><!-- Detail Modal -->
+   <div id="detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.6);">
+    <div class="w-full max-w-2xl rounded-2xl max-h-[90%] overflow-auto scrollbar-thin" style="background: #faf7f2;">
+     <div id="detail-content" class="p-6"><!-- Detail content will be rendered here -->
+     </div>
+    </div>
+   </div><!-- Delete Confirmation -->
+   <div id="delete-confirm" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.6);">
+    <div class="w-full max-w-sm rounded-2xl p-6 text-center" style="background: #faf7f2;">
+     <div class="text-5xl mb-4">
+      🗑️
+     </div>
+     <h3 class="font-display text-xl font-semibold mb-2" style="color: #2c1810;">Hapus Buku?</h3>
+     <p class="mb-6" style="color: #5c4033;">Tindakan ini tidak dapat dibatalkan</p>
+     <div class="flex gap-3"><button onclick="closeDeleteConfirm()" class="flex-1 px-4 py-3 rounded-xl font-medium transition-all" style="background: #f5ede3; color: #2c1810;"> Batal </button> <button id="confirm-delete-btn" onclick="confirmDelete()" class="flex-1 px-4 py-3 rounded-xl font-medium transition-all" style="background: #dc2626; color: white;"> Hapus </button>
+     </div>
+    </div>
+   </div><!-- Toast -->
+   <div id="toast" class="fixed bottom-4 right-4 z-50 hidden px-6 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-full opacity-0" style="background: #2c1810; color: #f5ede3;"><span id="toast-message"></span>
+   </div><!-- Loading Overlay -->
+   <div id="loading-overlay" class="fixed inset-0 z-40 hidden items-center justify-center" style="background: rgba(250,247,242,0.9);">
+    <div class="text-center">
+     <div class="animate-spin text-5xl mb-4">
+      📚
+     </div>
+     <p class="font-medium" style="color: #2c1810;">Memuat...</p>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Configuration
+    const defaultConfig = {
+      library_name: 'Perpustakaan Muara Literasi',
+      school_name: 'SMAK 6 PENABUR Jakarta',
+      welcome_text: 'Jelajahi dunia pengetahuan melalui koleksi buku perpustakaan kami. Mari bersama membangun budaya literasi untuk masa depan yang lebih cerah.',
+      drive_link: 'https://drive.google.com/drive/u/1/folders/1ocEv063sobBZJbCr6sgFcHSfVC_P_kA8',
+      background_color: '#faf7f2',
+      header_color: '#2c1810',
+      accent_color: '#d4a574',
+      text_color: '#5c4033',
+      card_color: '#ffffff',
+      font_family: 'Source Sans 3',
+      font_size: 16
+    };
 
-    <!-- JAVASCRIPT -->
-    <script>
-      const deweyCategories = [
-        {
-          code: "000",
-          name: "Ilmu Komputer & Informasi Umum",
-          icon: "💻",
-          color: "from-slate-500 to-slate-700",
-          description: "Mencakup ilmu komputer, informasi, karya umum, ensiklopedia, dan organisasi.",
-          subcategories: [
-            { name: "000 - Ilmu Komputer, Pengetahuan & Sistem" },
-            { name: "010 - Bibliografi" },
-            { name: "020 - Ilmu Perpustakaan & Informasi" },
-            { name: "030 - Ensiklopedia Umum" },
-            { name: "040 - [Tidak digunakan]" },
-            { name: "050 - Majalah, Jurnal & Serial" },
-            { name: "060 - Asosiasi, Organisasi & Museum" },
-            { name: "070 - Media Berita, Jurnalisme & Penerbitan" },
-            { name: "080 - Kutipan Umum" },
-            { name: "090 - Manuskrip & Buku Langka" }
-          ]
+    let config = { ...defaultConfig };
+    let allBooks = [];
+    let filteredBooks = [];
+    let deleteBookId = null;
+    let isLoading = false;
+
+    // Category colors and icons
+    const categoryStyles = {
+      'Fiksi': { icon: '📖', color: '#e76f51' },
+      'Non-Fiksi': { icon: '📘', color: '#2a9d8f' },
+      'Sains': { icon: '🔬', color: '#457b9d' },
+      'Sejarah': { icon: '🏛️', color: '#9c6644' },
+      'Agama': { icon: '🙏', color: '#7b68ee' },
+      'Bahasa': { icon: '💬', color: '#e9c46a' },
+      'Matematika': { icon: '📐', color: '#f4a261' },
+      'Lainnya': { icon: '📚', color: '#8d99ae' }
+    };
+
+    // Element SDK initialization
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...defaultConfig, ...newConfig };
+          applyConfig();
         },
+        mapToCapabilities: (cfg) => ({
+          recolorables: [
+            {
+              get: () => cfg.background_color || defaultConfig.background_color,
+              set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
+            },
+            {
+              get: () => cfg.card_color || defaultConfig.card_color,
+              set: (v) => { cfg.card_color = v; window.elementSdk.setConfig({ card_color: v }); }
+            },
+            {
+              get: () => cfg.text_color || defaultConfig.text_color,
+              set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+            },
+            {
+              get: () => cfg.accent_color || defaultConfig.accent_color,
+              set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
+            },
+            {
+              get: () => cfg.header_color || defaultConfig.header_color,
+              set: (v) => { cfg.header_color = v; window.elementSdk.setConfig({ header_color: v }); }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => cfg.font_family || defaultConfig.font_family,
+            set: (v) => { cfg.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+          },
+          fontSizeable: {
+            get: () => cfg.font_size || defaultConfig.font_size,
+            set: (v) => { cfg.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+          }
+        }),
+        mapToEditPanelValues: (cfg) => new Map([
+          ['library_name', cfg.library_name || defaultConfig.library_name],
+          ['school_name', cfg.school_name || defaultConfig.school_name],
+          ['welcome_text', cfg.welcome_text || defaultConfig.welcome_text],
+          ['drive_link', cfg.drive_link || defaultConfig.drive_link]
+        ])
+      });
+    }
 
-        {
-          code: "100",
-          name: "Filsafat & Psikologi",
-          icon: "🧠",
-          color: "from-purple-500 to-purple-700",
-          description: "Meliputi filsafat, metafisika, epistemologi, paranormal, dan psikologi.",
-          subcategories: [
-            { name: "100 - Filsafat" },
-            { name: "110 - Metafisika" },
-            { name: "120 - Epistemologi" },
-            { name: "130 - Paranormal" },
-            { name: "140 - Aliran Filsafat" },
-            { name: "150 - Psikologi" },
-            { name: "160 - Logika" },
-            { name: "170 - Etika" },
-            { name: "180 - Filsafat Kuno & Abad Pertengahan" },
-            { name: "190 - Filsafat Modern Barat" }
-          ]
-        },
+    // Apply configuration to UI
+    function applyConfig() {
+      const bg = config.background_color || defaultConfig.background_color;
+      const header = config.header_color || defaultConfig.header_color;
+      const accent = config.accent_color || defaultConfig.accent_color;
+      const text = config.text_color || defaultConfig.text_color;
+      const card = config.card_color || defaultConfig.card_color;
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      const fontSize = config.font_size || defaultConfig.font_size;
 
-        {
-          code: "200",
-          name: "Agama",
-          icon: "🙏",
-          color: "from-amber-500 to-amber-700",
-          description: "Semua tentang agama, mitologi, dan teologi dari berbagai kepercayaan dunia.",
-          subcategories: [
-            { name: "200 - Agama Umum" },
-            { name: "210 - Filsafat & Teori Agama" },
-            { name: "220 - Alkitab" },
-            { name: "230 - Teologi Kristen" },
-            { name: "240 - Moral & Devosi Kristen" },
-            { name: "250 - Gereja Lokal & Ordo Keagamaan" },
-            { name: "260 - Teologi Sosial & Gerejawi" },
-            { name: "270 - Sejarah Kekristenan" },
-            { name: "280 - Denominasi Kristen" },
-            { name: "290 - Agama Lain (Islam, Hindu, Buddha, dll)" }
-          ]
-        },
+      // Apply background
+      const app = document.getElementById('app');
+      if (app) app.style.background = `linear-gradient(135deg, ${bg} 0%, ${adjustColor(bg, -5)} 100%)`;
 
-        {
-          code: "300",
-          name: "Ilmu Sosial",
-          icon: "👥",
-          color: "from-blue-500 to-blue-700",
-          description: "Sosiologi, statistik, politik, ekonomi, hukum, pendidikan, dan adat istiadat.",
-          subcategories: [
-            { name: "300 - Ilmu Sosial Umum" },
-            { name: "310 - Statistik" },
-            { name: "320 - Ilmu Politik" },
-            { name: "330 - Ekonomi" },
-            { name: "340 - Hukum" },
-            { name: "350 - Administrasi Publik" },
-            { name: "360 - Masalah & Layanan Sosial" },
-            { name: "370 - Pendidikan" },
-            { name: "380 - Perdagangan & Komunikasi" },
-            { name: "390 - Adat Istiadat & Folklor" }
-          ]
-        },
+      // Apply header
+      const headerEl = document.getElementById('header');
+      if (headerEl) headerEl.style.background = `linear-gradient(135deg, ${header} 0%, ${adjustColor(header, 20)} 50%, ${adjustColor(header, 40)} 100%)`;
 
-        {
-          code: "400",
-          name: "Bahasa",
-          icon: "🗣️",
-          color: "from-teal-500 to-teal-700",
-          description: "Linguistik dan bahasa-bahasa dunia termasuk tata bahasa dan kamus.",
-          subcategories: [
-            { name: "400 - Bahasa Umum" },
-            { name: "410 - Linguistik" },
-            { name: "420 - Bahasa Inggris" },
-            { name: "430 - Bahasa Jerman" },
-            { name: "440 - Bahasa Prancis" },
-            { name: "450 - Bahasa Italia" },
-            { name: "460 - Bahasa Spanyol & Portugis" },
-            { name: "470 - Bahasa Latin" },
-            { name: "480 - Bahasa Yunani" },
-            { name: "490 - Bahasa Lain (termasuk Indonesia)" }
-          ]
-        },
+      // Apply text content
+      const libraryTitle = document.getElementById('library-title');
+      if (libraryTitle) libraryTitle.textContent = config.library_name || defaultConfig.library_name;
 
-        {
-          code: "500",
-          name: "Sains Murni",
-          icon: "🔬",
-          color: "from-green-500 to-green-700",
-          description: "Matematika, astronomi, fisika, kimia, biologi, dan ilmu bumi.",
-          subcategories: [
-            { name: "500 - Ilmu Pengetahuan Alam & Matematika" },
-            { name: "510 - Matematika", link: "https://drive.google.com/drive/u/1/folders/1t1uu4D5nbhWMwZmaKncVkbMr0jsV6BWM" },
-            { name: "520 - Astronomi" },
-            { name: "530 - Fisika" },
-            { name: "540 - Kimia" },
-            { name: "550 - Ilmu Bumi" },
-            { name: "560 - Paleontologi" },
-            { name: "570 - Biologi" },
-            { name: "580 - Botani (Tumbuhan)" },
-            { name: "590 - Zoologi (Hewan)" }
-          ]
-        },
+      const schoolTitle = document.getElementById('school-title');
+      if (schoolTitle) schoolTitle.textContent = config.school_name || defaultConfig.school_name;
 
-        {
-          code: "600",
-          name: "Teknologi & Sains Terapan",
-          icon: "⚙️",
-          color: "from-orange-500 to-orange-700",
-          description: "Kedokteran, teknik, pertanian, manajemen, dan ilmu terapan lainnya.",
-          subcategories: [
-            { name: "600 - Teknologi Umum" },
-            { name: "610 - Kedokteran & Kesehatan" },
-            { name: "620 - Teknik" },
-            { name: "630 - Pertanian" },
-            { name: "640 - Ekonomi Rumah Tangga" },
-            { name: "650 - Manajemen & Bisnis" },
-            { name: "660 - Teknik Kimia" },
-            { name: "670 - Manufaktur" },
-            { name: "680 - Kerajinan & Industri Kecil" },
-            { name: "690 - Konstruksi Bangunan" }
-          ]
-        },
+      const welcomeText = document.getElementById('welcome-text');
+      if (welcomeText) {
+        welcomeText.textContent = config.welcome_text || defaultConfig.welcome_text;
+        welcomeText.style.color = text;
+      }
 
-        {
-          code: "700",
-          name: "Kesenian & Rekreasi",
-          icon: "🎨",
-          color: "from-pink-500 to-pink-700",
-          description: "Seni rupa, musik, pertunjukan, olahraga, dan kegiatan rekreasi.",
-          subcategories: [
-            { name: "700 - Seni Umum" },
-            { name: "710 - Arsitektur Lanskap & Perencanaan Kota" },
+      const driveBtn = document.getElementById('drive-link-btn');
+      if (driveBtn) driveBtn.href = config.drive_link || defaultConfig.drive_link;
+
+      // Apply accent colors
+      const addBtn = document.getElementById('btn-add-book');
+      if (addBtn) addBtn.style.background = accent;
+
+      // Apply font
+      document.body.style.fontFamily = `${fontFamily}, 'Source Sans 3', sans-serif`;
+      document.body.style.fontSize = `${fontSize}px`;
+
+      // Re-render books with new styles
+      renderBooks();
+    }
+
+    // Helper function to adjust color brightness
+    function adjustColor(hex, percent) {
+      const num = parseInt(hex.replace('#', ''), 16);
+      const amt = Math.round(2.55 * percent);
+      const R = Math.min(255, Math.max(0, (num >> 16) + amt));
+      const G = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amt));
+      const B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+      return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+    }
+
+    // Data SDK handler
+    const dataHandler = {
+      onDataChanged(data) {
+        allBooks = data;
+        updateStats();
+        filterBooks();
+      }
+    };
+
+    // Initialize Data SDK
+    async function initDataSdk() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          showToast('Gagal memuat data perpustakaan');
+        }
+      }
+    }
+
+    // Update statistics
+    function updateStats() {
+      const totalEl = document.getElementById('total-books');
+      const availEl = document.getElementById('available-books');
+      if (totalEl) totalEl.textContent = allBooks.length;
+      if (availEl) availEl.textContent = allBooks.filter(b => b.available).length;
+    }
+
+    // Filter books
+    function filterBooks() {
+      const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
+      const category = document.getElementById('category-filter')?.value || '';
+      const availability = document.getElementById('availability-filter')?.value || '';
+
+      filteredBooks = allBooks.filter(book => {
+        const matchSearch = !searchTerm || 
+          book.title?.toLowerCase().includes(searchTerm) ||
+          book.author?.toLowerCase().includes(searchTerm) ||
+          book.isbn?.toLowerCase().includes(searchTerm);
+        
+        const matchCategory = !category || book.category === category;
+        
+        const matchAvailability = !availability || 
+          (availability === 'available' && book.available) ||
+          (availability === 'borrowed' && !book.available);
+
+        return matchSearch && matchCategory && matchAvailability;
+      });
+
+      renderBooks();
+    }
+
+    // Render books grid
+    function renderBooks() {
+      const container = document.getElementById('books-container');
+      const emptyState = document.getElementById('empty-state');
+      const noResults = document.getElementById('no-results');
+
+      if (!container) return;
+
+      if (allBooks.length === 0) {
+        container.innerHTML = '';
+        emptyState?.classList.remove('hidden');
+        noResults?.classList.add('hidden');
+        return;
+      }
+
+      emptyState?.classList.add('hidden');
+
+      if (filteredBooks.length === 0) {
+        container.innerHTML = '';
+        noResults?.classList.remove('hidden');
+        return;
+      }
+
+      noResults?.classList.add('hidden');
+
+      const card = config.card_color || defaultConfig.card_color;
+      const text = config.text_color || defaultConfig.text_color;
+      const accent = config.accent_color || defaultConfig.accent_color;
+
+      // Track existing cards
+      const existingCards = new Map(
+        [...container.children].map(el => [el.dataset.bookId, el])
+      );
+
+      filteredBooks.forEach((book, index) => {
+        const style = categoryStyles[book.category] || categoryStyles['Lainnya'];
+        const existingCard = existingCards.get(book.__backendId);
+
+        if (existingCard) {
+          // Update existing card
+          updateBookCard(existingCard, book, style, card, text, accent);
+          existingCards.delete(book.__backendId);
+        } else {
+          // Create new card
+          const cardEl = createBookCard(book, style, card, text, accent, index);
+          container.appendChild(cardEl);
+        }
+      });
+
+      // Remove cards no longer in list
+      existingCards.forEach(el => el.remove());
+    }
+
+    function createBookCard(book, style, card, text, accent, index) {
+      const div = document.createElement('div');
+      div.dataset.bookId = book.__backendId;
+      div.className = `book-card rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer animate-fade-in-up`;
+      div.style.cssText = `background: ${card}; box-shadow: 0 4px 15px rgba(0,0,0,0.08); animation-delay: ${index * 0.05}s;`;
+      div.onclick = () => openDetailModal(book);
+      
+      updateBookCardContent(div, book, style, text, accent);
+      return div;
+    }
+
+    function updateBookCard(cardEl, book, style, card, text, accent) {
+      cardEl.style.background = card;
+      updateBookCardContent(cardEl, book, style, text, accent);
+    }
+
+    function updateBookCardContent(cardEl, book, style, text, accent) {
+      cardEl.innerHTML = `
+        <div class="relative h-48 flex items-center justify-center" style="background: linear-gradient(135deg, ${style.color}20 0%, ${style.color}40 100%);">
+          ${book.cover_url ? 
+            `<img src="${book.cover_url}" alt="${book.title}" loading="lazy" class="h-full w-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+             <div class="absolute inset-0 hidden items-center justify-center text-7xl">${style.icon}</div>` :
+            `<div class="text-7xl">${style.icon}</div>`
+          }
+          <span class="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium" 
+            style="background: ${book.available ? '#10b981' : '#ef4444'}; color: white;">
+            ${book.available ? '✓ Tersedia' : '⏳ Dipinjam'}
+          </span>
+        </div>
+        <div class="p-4">
+          <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium mb-2" 
+            style="background: ${style.color}20; color: ${style.color};">
+            ${style.icon} ${book.category || 'Lainnya'}
+          </span>
+          <h3 class="font-display font-semibold text-lg line-clamp-2 mb-1" style="color: #2c1810;">
+            ${book.title || 'Tanpa Judul'}
+          </h3>
+          <p class="text-sm mb-2" style="color: ${text};">
+            ${book.author || 'Penulis tidak diketahui'}
+          </p>
+          ${book.year ? `<p class="text-xs opacity-70" style="color: ${text};">📅 ${book.year}</p>` : ''}
+        </div>
+      `;
+    }
+
+    // Modal functions
+    function openAddModal() {
+      document.getElementById('modal-title').textContent = 'Tambah Buku Baru';
+      document.getElementById('edit-book-id').value = '';
+      document.getElementById('book-form').reset();
+      document.getElementById('book-available').checked = true;
+      document.getElementById('book-modal').classList.remove('hidden');
+      document.getElementById('book-modal').classList.add('flex');
+    }
+
+    function openEditModal(book) {
+      document.getElementById('modal-title').textContent = 'Edit Buku';
+      document.getElementById('edit-book-id').value = book.__backendId;
+      document.getElementById('book-title').value = book.title || '';
+      document.getElementById('book-author').value = book.author || '';
+      document.getElementById('book-category').value = book.category || '';
+      document.getElementById('book-year').value = book.year || '';
+      document.getElementById('book-isbn').value = book.isbn || '';
+      document.getElementById('book-description').value = book.description || '';
+      document.getElementById('book-cover').value = book.cover_url || '';
+      document.getElementById('book-available').checked = book.available !== false;
+      document.getElementById('book-modal').classList.remove('hidden');
+      document.getElementById('book-modal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('book-modal').classList.add('hidden');
+      document.getElementById('book-modal').classList.remove('flex');
+    }
+
+    function openDetailModal(book) {
+      const style = categoryStyles[book.category] || categoryStyles['Lainnya'];
+      const content = document.getElementById('detail-content');
+      const text = config.text_color || defaultConfig.text_color;
+      
+      content.innerHTML = `
+        <div class="flex items-center justify-between mb-4">
+          <span class="inline-block px-3 py-1 rounded-full text-sm font-medium" 
+            style="background: ${style.color}20; color: ${style.color};">
+            ${style.icon} ${book.category || 'Lainnya'}
+          </span>
+          <button onclick="closeDetailModal()" class="w-10 h-10 rounded-full flex items-center justify-center transition-colors" style="background: #f5ede3; color: #2c1810;">✕</button>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-6">
+          <div class="sm:w-1/3">
+            <div class="aspect-[3/4] rounded-xl flex items-center justify-center overflow-hidden" style="background: linear-gradient(135deg, ${style.color}20 0%, ${style.color}40 100%);">
+              ${book.cover_url ? 
+                `<img src="${book.cover_url}" alt="${book.title}" loading="lazy" class="h-full w-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'text-8xl\\'>${style.icon}</div>'">` :
+                `<div class="text-8xl">${style.icon}</div>`
+              }
+            </div>
+          </div>
+          
+          <div class="sm:w-2/3">
+            <h2 class="font-display text-2xl font-bold mb-2" style="color: #2c1810;">${book.title || 'Tanpa Judul'}</h2>
+            <p class="text-lg mb-4" style="color: ${text};">oleh ${book.author || 'Penulis tidak diketahui'}</p>
+            
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style="background: ${book.available ? '#dcfce7' : '#fee2e2'}; color: ${book.available ? '#166534' : '#991b1b'};">
+              ${book.available ? '✓ Tersedia untuk dipinjam' : '⏳ Sedang dipinjam'}
+            </div>
+            
+            <div class="space-y-2 text-sm mb-4" style="color: ${text};">
+              ${book.year ? `<p><strong>Tahun Terbit:</strong> ${book.year}</p>` : ''}
+              ${book.isbn ? `<p><strong>ISBN:</strong> ${book.isbn}</p>` : ''}
+            </div>
+            
+            ${book.description ? `
+              <div class="mt-4 pt-4 border-t" style="border-color: #e5e7eb;">
+                <h4 class="font-semibold mb-2" style="color: #2c1810;">Deskripsi</h4>
+                <p class="text-sm leading-relaxed" style="color: ${text};">${book.description}</p>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+        
+        <div class="flex gap-3 mt-6 pt-4 border-t" style="border-color: #e5e7eb;">
+          <button onclick="openEditModal(allBooks.find(b => b.__backendId === '${book.__backendId}')); closeDetailModal();" 
+            class="flex-1 px-4 py-2.5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+            style="background: #d4a574; color: #2c1810;">
+            ✏️ Edit
+          </button>
+          <button onclick="toggleAvailability('${book.__backendId}')" 
+            class="flex-1 px-4 py-2.5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+            style="background: ${book.available ? '#fef3c7' : '#dcfce7'}; color: #2c1810;">
+            ${book.available ? '📤 Tandai Dipinjam' : '📥 Tandai Tersedia'}
+          </button>
+          <button onclick="openDeleteConfirm('${book.__backendId}')" 
+            class="px-4 py-2.5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+            style="background: #fee2e2; color: #991b1b;">
+            🗑️
+          </button>
+        </div>
+      `;
+      
+      document.getElementById('detail-modal').classList.remove('hidden');
+      document.getElementById('detail-modal').classList.add('flex');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').classList.add('hidden');
+      document.getElementById('detail-modal').classList.remove('flex');
+    }
+
+    // Delete confirmation
+    function openDeleteConfirm(bookId) {
+      deleteBookId = bookId;
+      document.getElementById('delete-confirm').classList.remove('hidden');
+      document.getElementById('delete-confirm').classList.add('flex');
+    }
+
+    function closeDeleteConfirm() {
+      deleteBookId = null;
+      document.getElementById('delete-confirm').classList.add('hidden');
+      document.getElementById('delete-confirm').classList.remove('flex');
+    }
+
+    async function confirmDelete() {
+      if (!deleteBookId || !window.dataSdk) return;
+      
+      const book = allBooks.find(b => b.__backendId === deleteBookId);
+      if (!book) return;
+
+      const btn = document.getElementById('confirm-delete-btn');
+      btn.disabled = true;
+      btn.textContent = 'Menghapus...';
+
+      const result = await window.dataSdk.delete(book);
+      
+      btn.disabled = false;
+      btn.textContent = 'Hapus';
+      
+      if (result.isOk) {
+        showToast('Buku berhasil dihapus');
+        closeDeleteConfirm();
+        closeDetailModal();
+      } else {
+        showToast('Gagal menghapus buku');
+      }
+    }
+
+    // Toggle availability
+    async function toggleAvailability(bookId) {
+      if (!window.dataSdk) return;
+      
+      const book = allBooks.find(b => b.__backendId === bookId);
+      if (!book) return;
+
+      const updatedBook = { ...book, available: !book.available };
+      const result = await window.dataSdk.update(updatedBook);
+      
+      if (result.isOk) {
+        showToast(updatedBook.available ? 'Buku ditandai tersedia' : 'Buku ditandai dipinjam');
+        closeDetailModal();
+      } else {
+        showToast('Gagal mengubah status buku');
+      }
+    }
+
+    // Form submission
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+      
+      if (!window.dataSdk) {
+        showToast('Sistem penyimpanan tidak tersedia');
+        return;
+      }
+
+      const editId = document.getElementById('edit-book-id').value;
+      const bookData = {
+        title: document.getElementById('book-title').value.trim(),
+        author: document.getElementById('book-author').value.trim(),
+        category: document.getElementById('book-category').value,
+        year: document.getElementById('book-year').value.trim(),
+        isbn: document.getElementById('book-isbn').value.trim(),
+        description: document.getElementById('book-description').value.trim(),
+        cover_url: document.getElementById('book-cover').value.trim(),
+        available: document.getElementById('book-available').checked,
+        added_date: new Date().toISOString()
+      };
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Menyimpan...';
+
+      let result;
+      
+      if (editId) {
+        const existingBook = allBooks.find(b => b.__backendId === editId);
+        if (existingBook) {
+          result = await window.dataSdk.update({ ...existingBook, ...bookData });
+        }
+      } else {
+        // Check limit
+        if (allBooks.length >= 999) {
+          showToast('Batas maksimum 999 buku tercapai!');
+          submitBtn.disabled = false;
+          submitBtn.textContent = '💾 Simpan';
+          return;
+        }
+        result = await window.dataSdk.create(bookData);
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = '💾 Simpan';
+
+      if (result && result.isOk) {
+        showToast(editId ? 'Buku berhasil diperbarui' : 'Buku berhasil ditambahkan');
+        closeModal();
+      } else {
+        showToast('Gagal menyimpan buku');
+      }
+    }
+
+    // Toast notification
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      
+      toastMsg.textContent = message;
+      toast.classList.remove('hidden', 'translate-y-full', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      
+      setTimeout(() => {
+        toast.classList.add('translate-y-full', 'opacity-0');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3000);
+    }
+
+    // Initialize
+    applyConfig();
+    initDataSdk();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c4d06d114f57324',t:'MTc2OTU2Njk5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
